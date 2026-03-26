@@ -93,41 +93,38 @@ const Auth = {
 
     async login() {
         const pwdEl = document.getElementById('login-password');
+        if (!pwdEl) { console.error('Password field not found'); return; }
         const pwd = pwdEl.value;
-        if (!pwd) return;
+        if (!pwd) { console.log('Empty password'); return; }
 
+        let match = false;
         try {
             const hash = await this.hashPassword(pwd);
-            const storedHash = localStorage.getItem('quote_pwd_hash') || CONFIG.PASSWORD_HASH;
-
-            console.log('Login attempt, hash match:', hash === CONFIG.PASSWORD_HASH);
-
-            if (hash === storedHash || hash === CONFIG.PASSWORD_HASH) {
-                sessionStorage.setItem('quote_auth', 'true');
-                localStorage.setItem('quote_pwd_hash', storedHash);
-                document.getElementById('login-screen').classList.remove('active');
-                document.getElementById('app-screen').classList.add('active');
-                document.getElementById('login-error').style.display = 'none';
-                App.init();
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-                pwdEl.value = '';
-                pwdEl.focus();
-            }
+            console.log('Hash computed:', hash);
+            console.log('Expected:', CONFIG.PASSWORD_HASH);
+            match = (hash === CONFIG.PASSWORD_HASH);
         } catch (err) {
-            console.error('Login error:', err);
-            // Emergency fallback: direct string comparison
-            if (pwd === 'freshgifts2026') {
-                sessionStorage.setItem('quote_auth', 'true');
-                document.getElementById('login-screen').classList.remove('active');
-                document.getElementById('app-screen').classList.add('active');
-                App.init();
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-                pwdEl.value = '';
-                pwdEl.focus();
-            }
+            console.error('Hash error, using fallback:', err);
+            match = (pwd === 'freshgifts2026');
         }
+
+        if (match) {
+            console.log('Login success!');
+            sessionStorage.setItem('quote_auth', 'true');
+            this._showApp();
+        } else {
+            console.log('Login failed');
+            document.getElementById('login-error').style.display = 'block';
+            pwdEl.value = '';
+            pwdEl.focus();
+        }
+    },
+
+    _showApp() {
+        document.getElementById('login-screen').classList.remove('active');
+        document.getElementById('app-screen').classList.add('active');
+        document.getElementById('login-error').style.display = 'none';
+        if (typeof App !== 'undefined') App.init();
     },
 
     logout() {
@@ -140,9 +137,7 @@ const Auth = {
 
     checkSession() {
         if (sessionStorage.getItem('quote_auth') === 'true') {
-            document.getElementById('login-screen').classList.remove('active');
-            document.getElementById('app-screen').classList.add('active');
-            App.init();
+            this._showApp();
         }
     }
 };

@@ -11,12 +11,12 @@ a { color: #2563eb; text-decoration: none; }
 input, select, textarea, button { font-family: inherit; font-size: inherit; }
 
 /* ===== SCREENS ===== */
-.screen { display: none; }
-.screen.active { display: block; }
+.screen { display: none !important; }
+.screen.active { display: block !important; }
 
 /* ===== LOGIN ===== */
-#login-screen {
-    display: flex; align-items: center; justify-content: center;
+#login-screen.active {
+    display: flex !important; align-items: center; justify-content: center;
     min-height: 100vh;
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
 }
