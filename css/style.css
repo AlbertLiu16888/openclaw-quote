@@ -66,6 +66,8 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 .btn-outline:hover { background: #eff6ff; }
 .btn-danger { background: #ef4444; color: #fff; }
 .btn-danger:hover { background: #dc2626; }
+.btn-line { background: #06C755; color: #fff; border: none; }
+.btn-line:hover { background: #05a648; }
 .btn-full { width: 100%; justify-content: center; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 
@@ -282,6 +284,13 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
     .item-row .item-total, .item-row .item-unit-price { display: none; }
     .nav-right { overflow-x: auto; }
     .quote-paper { width: 100%; min-height: auto; padding: 5mm; }
-    .toolbar-actions { flex-wrap: wrap; }
-    .toolbar-actions .btn { flex: 1; min-width: 100px; justify-content: center; }
+    .toolbar-actions { flex-wrap: wrap; gap: 6px; }
+    .toolbar-actions .btn { flex: 1 1 calc(50% - 6px); min-width: 0; justify-content: center; font-size: 13px; padding: 10px 8px; }
+    .toolbar-actions .btn-line { flex: 1 1 100%; font-size: 15px; padding: 14px 8px; order: -1; }
+    .preview-toolbar h2 { font-size: 18px; }
+    .preview-toolbar { flex-direction: column; gap: 12px; }
+}
+
+@media (max-width: 480px) {
+    .toolbar-actions .btn { flex: 1 1 100%; }
 }

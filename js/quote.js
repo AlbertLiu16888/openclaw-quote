@@ -392,29 +392,80 @@ const Quote = {
     async sendLINE() {
         if (!this._currentQuoteData) { Toast.show('請先預覽報價單', 'error'); return; }
 
-        const token = Data.getSetting('line_token') || CONFIG.LINE_TOKEN;
-        if (!token) {
-            Toast.show('請先設定 LINE Notify Token（在瀏覽器 Console 輸入 Data.setSetting("line_token","YOUR_TOKEN")）', 'error');
-            return;
+        const d = this._currentQuoteData;
+        const info = d.info;
+
+        // Step 1: Try to save to Drive first to get a PDF URL
+        let pdfUrl = '';
+        Toast.show('正在生成報價單連結...', 'info');
+
+        try {
+            const result = await Data.syncToCloud('saveQuote', d);
+            if (result.pdfUrl) pdfUrl = result.pdfUrl;
+            else if (result.sheetUrl) pdfUrl = result.sheetUrl;
+        } catch (err) {
+            console.log('Cloud save failed, using fallback', err);
         }
 
-        const msg = `\n📋 報價單通知\n` +
-            `編號：${this._currentQuoteData.quoteId}\n` +
-            `客戶：${this._currentQuoteData.info.clientName}\n` +
-            `日期：${this._currentQuoteData.info.eventDate}\n` +
-            `地點：${this._currentQuoteData.info.location}\n` +
-            `含稅總計：$${this._currentQuoteData.total.toLocaleString()}\n`;
+        // Step 2: Build message
+        const lines = [
+            `📋 報價單 ${d.quoteId}`,
+            ``,
+            `客戶：${info.clientName}`,
+            `日期：${info.eventDate}`,
+            `地點：${info.location}`,
+            `人數：${info.headcount || '-'} 人`,
+            `含稅總計：NT$ ${d.total.toLocaleString()}`,
+            ``,
+            `${CONFIG.COMPANY.name}`,
+        ];
 
-        // LINE Notify needs server-side (CORS), use cloud function
-        const result = await Data.syncToCloud('sendLINE', {
-            token, message: msg
-        });
+        if (pdfUrl) {
+            lines.push(``, `📎 報價單檔案：`, pdfUrl);
+        }
 
-        if (result.success) {
-            Toast.show('已發送 LINE 通知！', 'success');
+        const message = lines.join('\n');
+
+        // Step 3: Open LINE Share (works on mobile + desktop)
+        // Detect platform for best experience
+        const encoded = encodeURIComponent(message);
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        if (isMobile) {
+            // Mobile: use line:// scheme to open LINE app directly
+            window.location.href = `line://msg/text/${encoded}`;
+            // Fallback to HTTPS share if scheme doesn't work
+            setTimeout(() => {
+                window.open(`https://line.me/R/share?text=${encoded}`, '_blank');
+            }, 2000);
         } else {
-            Toast.show('LINE 發送失敗: ' + (result.error || '請檢查 Token'), 'error');
+            // Desktop: use HTTPS share URL (opens LINE desktop or web)
+            window.open(`https://line.me/R/share?text=${encoded}`, '_blank');
         }
+
+        Toast.show('已開啟 LINE 分享', 'success');
+    },
+
+    // Generate PDF blob from preview for direct download
+    async downloadPDF() {
+        if (!this._currentQuoteData) { Toast.show('請先預覽報價單', 'error'); return; }
+
+        // First try: Save to Drive and get PDF URL
+        Toast.show('正在生成 PDF...', 'info');
+        try {
+            const result = await Data.syncToCloud('saveQuote', this._currentQuoteData);
+            if (result.pdfUrl) {
+                window.open(result.pdfUrl, '_blank');
+                Toast.show('PDF 已生成！', 'success');
+                return;
+            }
+        } catch (err) {
+            console.log('Cloud PDF failed', err);
+        }
+
+        // Fallback: use browser print
+        Toast.show('雲端生成失敗，使用瀏覽器列印存 PDF', 'info');
+        setTimeout(() => window.print(), 500);
     },
 
     // ===== Reset =====
