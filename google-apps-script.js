@@ -238,25 +238,36 @@ function generateQuotePDF(data) {
   var ssId = ss.getId();
   var pdfBlob = exportSheetAsPDF(ssId);
 
-  // Move to folder if specified
+  // Set spreadsheet to "anyone with link can view"
   var file = DriveApp.getFileById(ssId);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  // Move to folder if specified
   if (SAVE_FOLDER_ID) {
     try {
       var folder = DriveApp.getFolderById(SAVE_FOLDER_ID);
       folder.addFile(file);
       DriveApp.getRootFolder().removeFile(file);
-      if (pdfBlob) {
-        var pdfFile = folder.createFile(pdfBlob);
-        return { sheetUrl: ss.getUrl(), pdfUrl: pdfFile.getUrl() };
-      }
     } catch (err) {
       Logger.log('Folder error: ' + err.message);
     }
   }
 
+  // Save PDF and set sharing
   if (pdfBlob) {
-    var pdfFile2 = DriveApp.createFile(pdfBlob);
-    return { sheetUrl: ss.getUrl(), pdfUrl: pdfFile2.getUrl() };
+    var pdfFile;
+    if (SAVE_FOLDER_ID) {
+      try {
+        pdfFile = DriveApp.getFolderById(SAVE_FOLDER_ID).createFile(pdfBlob);
+      } catch (err) {
+        pdfFile = DriveApp.createFile(pdfBlob);
+      }
+    } else {
+      pdfFile = DriveApp.createFile(pdfBlob);
+    }
+    // Set PDF to "anyone with link can view"
+    pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return { sheetUrl: ss.getUrl(), pdfUrl: pdfFile.getUrl() };
   }
 
   return { sheetUrl: ss.getUrl(), pdfUrl: '' };
