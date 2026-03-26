@@ -1,7 +1,7 @@
 // ===== Configuration =====
 const CONFIG = {
     // Google Apps Script Web App URL (will be set after deployment)
-    API_URL: '',
+    API_URL: 'https://script.google.com/macros/s/AKfycbw1HHwmZABnh7vgEcv-YHhSQIxtM2RpbrWU00JU3rLAnDkw7Q5EIR2zbruBRWrBQNPi/exec',
 
     // Password hash (SHA-256 of the password)
     // Default password: "freshgifts2026"
