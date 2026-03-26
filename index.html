@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>異品科技 - 報價單系統</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ===== PASSWORD GATE ===== -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-logo">
+                <div class="logo-icon">異品</div>
+                <h1>報價單管理系統</h1>
+                <p>異品科技股份有限公司</p>
+            </div>
+            <form id="login-form" onsubmit="return false;">
+                <div class="input-group">
+                    <label>系統密碼</label>
+                    <input type="password" id="login-password" placeholder="請輸入密碼" autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" onclick="Auth.login()">登入系統</button>
+                <p id="login-error" class="error-text" style="display:none">密碼錯誤</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MAIN APP ===== -->
+    <div id="app-screen" class="screen">
+        <!-- Top Nav -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <span class="nav-logo">異品科技</span>
+                <span class="nav-divider">|</span>
+                <span class="nav-title">報價單系統</span>
+            </div>
+            <div class="nav-right">
+                <button class="nav-btn" onclick="App.showSection('dashboard')" data-section="dashboard">首頁</button>
+                <button class="nav-btn" onclick="App.showSection('items-mgmt')" data-section="items-mgmt">品項管理</button>
+                <button class="nav-btn" onclick="App.showSection('clients-mgmt')" data-section="clients-mgmt">客戶管理</button>
+                <button class="nav-btn nav-btn-accent" onclick="App.showSection('new-quote')" data-section="new-quote">+ 新報價單</button>
+                <button class="nav-btn nav-logout" onclick="Auth.logout()">登出</button>
+            </div>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <section id="sec-dashboard" class="section active">
+            <div class="container">
+                <h2>儀表板</h2>
+                <div class="dashboard-cards">
+                    <div class="dash-card" onclick="App.showSection('new-quote')">
+                        <div class="dash-icon">📝</div>
+                        <h3>新建報價單</h3>
+                        <p>快速選單生成報價</p>
+                    </div>
+                    <div class="dash-card" onclick="App.showSection('items-mgmt')">
+                        <div class="dash-icon">📦</div>
+                        <h3>品項管理</h3>
+                        <p>新增/編輯/刪除品項</p>
+                    </div>
+                    <div class="dash-card" onclick="App.showSection('clients-mgmt')">
+                        <div class="dash-icon">👥</div>
+                        <h3>客戶管理</h3>
+                        <p>客戶資訊與歷史紀錄</p>
+                    </div>
+                    <div class="dash-card" onclick="App.showSection('history')">
+                        <div class="dash-icon">📋</div>
+                        <h3>報價紀錄</h3>
+                        <p>查看歷史報價單</p>
+                    </div>
+                </div>
+                <div class="recent-section">
+                    <h3>最近報價紀錄</h3>
+                    <div id="recent-quotes" class="table-container">
+                        <p class="empty-state">尚無報價紀錄</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Quote Section -->
+        <section id="sec-new-quote" class="section">
+            <div class="container">
+                <!-- Step Indicator -->
+                <div class="steps-bar">
+                    <div class="step active" data-step="1"><span>1</span> 客戶資訊</div>
+                    <div class="step" data-step="2"><span>2</span> 選擇品項</div>
+                    <div class="step" data-step="3"><span>3</span> 預覽輸出</div>
+                </div>
+
+                <!-- Step 1: Client Info -->
+                <div id="quote-step-1" class="quote-step active">
+                    <h2>客戶資訊</h2>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>客戶名稱 *</label>
+                            <input type="text" id="q-client-name" placeholder="例：TSMC EA Dept." list="client-list">
+                            <datalist id="client-list"></datalist>
+                        </div>
+                        <div class="input-group">
+                            <label>聯絡人</label>
+                            <input type="text" id="q-contact" placeholder="聯絡人姓名">
+                        </div>
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="q-email" placeholder="client@example.com">
+                        </div>
+                        <div class="input-group">
+                            <label>電話</label>
+                            <input type="tel" id="q-phone" placeholder="09xx-xxx-xxx">
+                        </div>
+                        <div class="input-group">
+                            <label>活動日期 *</label>
+                            <input type="date" id="q-event-date">
+                        </div>
+                        <div class="input-group">
+                            <label>活動地點 *</label>
+                            <input type="text" id="q-location" placeholder="例：台中">
+                        </div>
+                        <div class="input-group">
+                            <label>活動時段</label>
+                            <select id="q-event-period">
+                                <option value="全天">全天</option>
+                                <option value="上午">上午</option>
+                                <option value="下午">下午</option>
+                                <option value="晚間">晚間</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>預估人數</label>
+                            <input type="number" id="q-headcount" placeholder="250" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>統一編號</label>
+                            <input type="text" id="q-tax-id" placeholder="選填" maxlength="8">
+                        </div>
+                        <div class="input-group">
+                            <label>報價有效日期</label>
+                            <input type="date" id="q-valid-date">
+                        </div>
+                        <div class="input-group full-width">
+                            <label>備註</label>
+                            <textarea id="q-notes" rows="2" placeholder="額外備註事項"></textarea>
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn btn-primary" onclick="Quote.goStep(2)">下一步：選擇品項 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Select Items -->
+                <div id="quote-step-2" class="quote-step">
+                    <h2>選擇品項</h2>
+                    <div id="items-selector" class="items-selector">
+                        <!-- Dynamically populated -->
+                    </div>
+                    <!-- Custom Item Add -->
+                    <div class="custom-item-section">
+                        <h3>➕ 新增自訂品項</h3>
+                        <div class="form-grid compact">
+                            <div class="input-group">
+                                <label>類別</label>
+                                <input type="text" id="custom-category" placeholder="例：其他">
+                            </div>
+                            <div class="input-group">
+                                <label>品名</label>
+                                <input type="text" id="custom-name" placeholder="品項名稱">
+                            </div>
+                            <div class="input-group">
+                                <label>單位</label>
+                                <input type="text" id="custom-unit" placeholder="式/人/台" value="式">
+                            </div>
+                            <div class="input-group">
+                                <label>單價</label>
+                                <input type="number" id="custom-price" placeholder="0">
+                            </div>
+                            <div class="input-group">
+                                <label>數量</label>
+                                <input type="number" id="custom-qty" placeholder="1" value="1" min="1">
+                            </div>
+                            <div class="input-group">
+                                <button class="btn btn-secondary" onclick="Quote.addCustomItem()">加入品項</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Running Total -->
+                    <div class="running-total">
+                        <div class="total-row"><span>小計</span><span id="running-subtotal">$0</span></div>
+                        <div class="total-row"><span>稅額 (5%)</span><span id="running-tax">$0</span></div>
+                        <div class="total-row total-final"><span>含稅總計</span><span id="running-total">$0</span></div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn btn-outline" onclick="Quote.goStep(1)">← 上一步</button>
+                        <button class="btn btn-primary" onclick="Quote.goStep(3)">下一步：預覽報價 →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Preview & Export -->
+                <div id="quote-step-3" class="quote-step">
+                    <div class="preview-toolbar">
+                        <h2>報價單預覽</h2>
+                        <div class="toolbar-actions">
+                            <button class="btn btn-outline" onclick="Quote.goStep(2)">← 修改品項</button>
+                            <button class="btn btn-secondary" onclick="Quote.printPDF()">🖨️ 列印 / 存PDF</button>
+                            <button class="btn btn-secondary" onclick="Quote.saveToDrive()">☁️ 存到雲端</button>
+                            <button class="btn btn-secondary" onclick="Quote.sendEmail()">📧 Email</button>
+                            <button class="btn btn-secondary" onclick="Quote.sendLINE()">💬 LINE</button>
+                        </div>
+                    </div>
+                    <div id="quote-preview-wrapper">
+                        <div id="quote-preview" class="quote-paper">
+                            <!-- PDF-ready content generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Items Management -->
+        <section id="sec-items-mgmt" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>品項管理</h2>
+                    <button class="btn btn-primary" onclick="ItemsMgmt.showAddDialog()">+ 新增品項</button>
+                </div>
+                <div id="items-table-container" class="table-container">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Clients Management -->
+        <section id="sec-clients-mgmt" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>客戶管理</h2>
+                    <button class="btn btn-primary" onclick="ClientsMgmt.showAddDialog()">+ 新增客戶</button>
+                </div>
+                <div id="clients-table-container" class="table-container">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- History -->
+        <section id="sec-history" class="section">
+            <div class="container">
+                <h2>報價紀錄</h2>
+                <div id="history-container" class="table-container">
+                    <p class="empty-state">尚無報價紀錄</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal Dialog -->
+    <div id="modal-overlay" class="modal-overlay" onclick="Modal.close()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title">標題</h3>
+                <button class="modal-close" onclick="Modal.close()">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+            <div id="modal-footer" class="modal-footer"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/quote.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
