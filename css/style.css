@@ -206,6 +206,12 @@ input, select, textarea, button { font-family: inherit; font-size: inherit; }
 .qp-table td:nth-child(n+3) { text-align: right; }
 .qp-table .cat-row td { background: #f8fafc; font-weight: 600; color: #2563eb; font-size: 10px; }
 .qp-table .subtotal-row td { border-top: 2px solid #333; font-weight: 700; }
+.qp-table .standard-includes-row td {
+    background: #f0f7ff; font-size: 9.5px; color: #475569;
+    padding: 4px 8px 6px; line-height: 1.6;
+    border-bottom: 1px solid #bfdbfe;
+}
+.standard-includes-label { font-weight: 600; color: #2563eb; margin-right: 2px; }
 
 .qp-summary { display: flex; justify-content: flex-end; margin-bottom: 6mm; }
 .qp-summary-table { width: 200px; }

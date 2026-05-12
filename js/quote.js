@@ -215,6 +215,8 @@ const Quote = {
         // Build table rows
         let tableRows = '';
         let rowNum = 0;
+        const standardDesc = STANDARD_PACKAGE_ITEMS.map((s, i) => `${i + 1}. ${s}`).join('　');
+
         for (const cat of CATEGORY_ORDER) {
             if (!grouped[cat]) continue;
             tableRows += `<tr class="cat-row"><td colspan="5">${cat}</td></tr>`;
@@ -228,6 +230,13 @@ const Quote = {
                     <td>$${item.customPrice.toLocaleString()}</td>
                     <td>$${lineTotal.toLocaleString()}</td>
                 </tr>`;
+                if (item.isStandard) {
+                    tableRows += `<tr class="standard-includes-row">
+                        <td colspan="5">
+                            <span class="standard-includes-label">主題費用包含：</span>${standardDesc}
+                        </td>
+                    </tr>`;
+                }
             }
         }
         // Add any remaining categories

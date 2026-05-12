@@ -78,5 +78,19 @@ const DEFAULT_ITEMS = [
     { id: 'H02', category: '扣抵/調整', name: '特殊折扣', unit: '式', unitPrice: 0, isStandard: false },
 ];
 
+// Standard package included items description
+const STANDARD_PACKAGE_ITEMS = [
+    '專案活動籌辦費 1式',
+    '事前會議 1式',
+    '活動場地設置（含進撤場作業）1式',
+    '現場簡報設計：預設公版，若有主視覺設計將直接套用 1式',
+    '活動紀錄照片：提供雲端連結（活動結束後約30個工作天）1式',
+    '團隊活動中文主持人：1位 1人',
+    '工作團隊：視需求安排對應人數 1式',
+    '平面攝影師：靜態攝影1機 1人',
+    '道具運輸費：新竹以北 1式',
+    '差旅費：新竹以北 1式',
+];
+
 // Category display order
 const CATEGORY_ORDER = ['主題活動', '活動關卡', '保險', '人力', '交通', '餐飲', '場地', '扣抵/調整', '代辦服務費'];

@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "quote-server",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "9090"],
-      "port": 9090
+      "name": "openclaw-quote",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "8091", "."],
+      "port": 8091
     }
   ]
 }
